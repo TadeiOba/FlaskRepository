@@ -1,0 +1,59 @@
+<!-- app/templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask-SocketIO Chat</title>
+    <style>
+
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <div class="popup" id="popup"></div>
+        <div>
+            <input type="text" id="messageInput" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('message', function(msg) {
+            var messagesDiv = document.getElementById('messages');
+            var messageClass = 'user-message';
+
+            // Check if the message is from the current user
+            if (msg.includes('You:')) {
+                messageClass = '';
+            }
+
+            messagesDiv.innerHTML += '<p class="' + messageClass + '">' + msg + '</p>';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            // Show popup with new message
+            var popup = document.getElementById('popup');
+            popup.innerHTML = '<p>' + msg + '</p>';
+            popup.style.display = 'block';
+            setTimeout(function() {
+                popup.style.display = 'none';
+            }, 3000);
+        });
+
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value;
+            if (message.trim() !== '') {
+                socket.emit('message', 'You: ' + message);
+                messageInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
