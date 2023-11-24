@@ -1,0 +1,64 @@
+<!-- app/templates/index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        function sendNotification() {
+            var message = prompt('Enter your notification:');
+            if (message) {
+                socket.emit('notification', message);
+            }
+        }
+
+        socket.on('receive_notification', function(data) {
+            var notificationDiv = document.createElement('div');
+            notificationDiv.className = 'notification';
+            notificationDiv.innerText = 'New Notification: ' + data;
+
+            document.body.appendChild(notificationDiv);
+
+            // Remove the notification after a few seconds
+            setTimeout(function() {
+                document.body.removeChild(notificationDiv);
+            }, 5000);
+        });
+    </script>
+</head>
+<body>
+    <h1>Flask Notifications</h1>
+    <button onclick="sendNotification()">Send Notification</button>
+</body>
+</html>
